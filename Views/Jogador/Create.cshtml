@@ -1,0 +1,50 @@
+﻿@model EliminIQ_TCC.Models.Jogador
+
+@{
+    ViewData["Title"] = "Cadastro de Jogador";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Create" method="post">
+    <div class="container">
+        <div class="image-side">
+            <img src="~/assets/img/undraw_gaming_v7a6.svg" alt="Imagem decorativa" />
+        </div>
+
+        <div class="form-side">
+            <h2>Cadastre-se</h2>
+
+            @* Campo oculto para o Id (gerado pelo EF) *@
+            <input asp-for="Id_Jogador" type="hidden" />
+
+            <div class="input-field">
+                <i class='bx bxs-user'></i>
+                <input asp-for="Nome_Jogador" placeholder="Nome" required />
+                <span asp-validation-for="Nome_Jogador" class="text-danger"></span>
+            </div>
+
+            <div class="input-field">
+                <i class='bx bxs-envelope'></i>
+                <input asp-for="Email_Jogador" placeholder="Email" required />
+                <span asp-validation-for="Email_Jogador" class="text-danger"></span>
+            </div>
+
+            <div class="input-field">
+                <i class='bx bxs-lock-alt'></i>
+                <input asp-for="Senha_Jogador" type="password" placeholder="Senha" required />
+                <span asp-validation-for="Senha_Jogador" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn solid">Cadastrar</button>
+
+            <p style="margin-top: 10px;">
+                Já tem Conta? <a asp-controller="Jogador" asp-action="Login">Faça o Login</a>
+            </p>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
