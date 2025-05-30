@@ -1,0 +1,46 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/assets/css/style_login.css" />
+    <title>Entrar</title>
+</head>
+<body>
+    <div class="container">
+        <div class="image-side">
+            <img src="~/assets/img/undraw_retro-video-game_l9zp.svg" alt="Imagem de login" />
+        </div>
+
+        <div class="form-side">
+            <h2 class="title">Entrar</h2>
+
+            @if (ViewBag.Erro != null)
+            {
+                <p style="color:red">@ViewBag.Erro</p>
+            }
+
+            <form asp-controller="Jogador" asp-action="Login" method="post" class="sign-in-form">
+                <div class="input-field">
+                    <i class='bx bxs-envelope'></i>
+                    <input type="email" name="email" placeholder="Email" required />
+                </div>
+                <div class="input-field">
+                    <i class='bx bxs-lock-alt'></i>
+                    <input type="password" name="senha" placeholder="Senha" required />
+                </div>
+                <button type="submit" class="btn solid">Entrar</button>
+                <p style="margin-top: 10px;">
+                    Não tem uma conta? <a asp-controller="Jogador" asp-action="Create">Cadastre-se</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script src="~/assets/js/login.js"></script>
+</body>
+</html>
