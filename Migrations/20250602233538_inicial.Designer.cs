@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EliminIQ_TCC.Migrations
 {
     [DbContext(typeof(DbConfig))]
-    [Migration("20250520203034_inicial")]
+    [Migration("20250602233538_inicial")]
     partial class inicial
     {
         /// <inheritdoc />

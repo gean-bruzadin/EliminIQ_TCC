@@ -68,7 +68,7 @@ namespace EliminIQ_TCC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Jogador jogador)
         {
-            if (!ModelState.IsValid)
+            if (jogador == null)
                 return View(jogador);
 
             await _dbConfig.Jogador.AddAsync(jogador);
