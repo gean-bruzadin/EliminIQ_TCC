@@ -74,7 +74,7 @@ namespace EliminIQ_TCC.Controllers
             await _dbConfig.Jogador.AddAsync(jogador);
             await _dbConfig.SaveChangesAsync();
             // após cadastro, manda pro Login
-            return RedirectToAction("Login");
+            return RedirectToAction("Login", "Jogador"); // especificar a controller junto com action
         }
 
         [HttpGet]

@@ -1,6 +1,7 @@
 ﻿@{
     Layout = null;  // ou especifique seu _Layout se tiver um
     var nome = ViewBag.Nome as string;
+    var jogadorId = Context.Session.GetInt32("JogadorId");
 }
 
 <!DOCTYPE html>
@@ -31,7 +32,7 @@
 
                 <ul class="profile-dropdown-list" id="dropdownMenu">
                     <li class="profile-dropdown-list-item">
-                        <a asp-controller="Jogador" asp-action="Detalhes" asp-route-id="@HttpContext.Session.GetInt32("JogadorId")">
+                        <a asp-controller="Jogador" asp-action="Detalhes" asp-route-id="@jogadorId">
                             <i class="bi bi-person-circle"></i> Editar Perfil
                         </a>
                     </li>
