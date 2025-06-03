@@ -1,5 +1,5 @@
 ﻿@{
-    Layout = null;  // ou especifique seu _Layout se tiver um
+    Layout = null; // ou especifique seu _Layout se tiver um
     var nome = ViewBag.Nome as string;
     var jogadorId = Context.Session.GetInt32("JogadorId");
 }
@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="~/assets/css/style_principal.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="@Url.Content("~/css/Style_principal.css")" />
 </head>
 <body>
     <header>
@@ -22,7 +22,7 @@
             <div class="profile-dropdown">
                 <div class="profile-dropdown-btn" onclick="toggleDropdown()">
                     <div class="profile-img">
-                        <img src="~/assets/img/profile.png" alt="Avatar" width="25" height="25" />
+                        <img src="@Url.Content("~/images/profile.png")" alt="Avatar" width="25" height="25" />
                     </div>
                     <span>
                         @nome
@@ -75,8 +75,7 @@
             <li><a asp-controller="Quiz" asp-action="Criar">Criação</a></li>
         </ul>
     </div>
-
-    <script src="~/assets/js/menu_dropdown.js"></script>
-    <script src="~/assets/js/tema.js"></script>
+    <script src="~/js/menu_dropdown.js" asp-append-version="true"></script>
+    <script src="~/js/tema.js" asp-append-version="true"></script>
 </body>
 </html>

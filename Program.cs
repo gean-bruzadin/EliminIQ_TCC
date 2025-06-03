@@ -34,8 +34,8 @@ app.UseAuthorization();
 
 // 4. Rota padrão: agora Jogador/Login como inicial
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Jogador}/{action=Login}/{id?}"
+   name: "default",
+    pattern: "{controller=Auth}/{action=Login}/{id?}"
 );
 
 app.Run();

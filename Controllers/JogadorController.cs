@@ -1,7 +1,9 @@
 ﻿using EliminIQ_TCC.Config;
 using EliminIQ_TCC.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace EliminIQ_TCC.Controllers
 {
@@ -17,43 +19,16 @@ namespace EliminIQ_TCC.Controllers
             HttpContext.Session.GetInt32("JogadorId") != null;
 
         private IActionResult RedirecionarAoLogin() =>
-            RedirectToAction("Login", "Jogador");
+            RedirectToAction("Login", "Auth");
+        // passa a apontar para AuthController em vez de JogadorController
 
-        // ------- LOGIN / LOGOUT -------
-
-        [HttpGet]
-        public IActionResult Login()
-            => View();
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string email, string senha)
-        {
-            var jogador = await _dbConfig.Jogador
-                .FirstOrDefaultAsync(j =>
-                    j.Email_Jogador == email.Trim() &&
-                    j.Senha_Jogador == senha.Trim());
-
-            if (jogador == null)
-            {
-                ViewBag.Erro = "Email ou senha inválidos.";
-                return View();
-            }
-
-            HttpContext.Session.SetInt32("JogadorId", jogador.Id_Jogador);
-            HttpContext.Session.SetString("JogadorNome", jogador.Nome_Jogador);
-            return RedirectToAction("Dashboard");
-        }
-
-        public IActionResult Logout()
-        {
-            HttpContext.Session.Clear();
-            return RedirectToAction("Login");
-        }
+        // ------- DASHBOARD (permanece aqui) -------
 
         public IActionResult Dashboard()
         {
-            if (!UsuarioLogado()) return RedirecionarAoLogin();
+            if (!UsuarioLogado())
+                return RedirecionarAoLogin();
+
             ViewBag.Nome = HttpContext.Session.GetString("JogadorNome");
             return View();
         }
@@ -73,25 +48,34 @@ namespace EliminIQ_TCC.Controllers
 
             await _dbConfig.Jogador.AddAsync(jogador);
             await _dbConfig.SaveChangesAsync();
-            // após cadastro, manda pro Login
-            return RedirectToAction("Login", "Jogador"); // especificar a controller junto com action
+
+            // Após cadastro, manda para Auth/Login
+            return RedirectToAction("Login", "Auth");
         }
 
         [HttpGet]
         public async Task<IActionResult> Detalhes(int id)
         {
-            if (!UsuarioLogado()) return RedirecionarAoLogin();
+            if (!UsuarioLogado())
+                return RedirecionarAoLogin();
+
             var jogador = await _dbConfig.Jogador.FindAsync(id);
-            if (jogador == null) return NotFound();
+            if (jogador == null)
+                return NotFound();
+
             return View(jogador);
         }
 
         [HttpGet]
         public async Task<IActionResult> Atualizar(int id)
         {
-            if (!UsuarioLogado()) return RedirecionarAoLogin();
+            if (!UsuarioLogado())
+                return RedirecionarAoLogin();
+
             var jogador = await _dbConfig.Jogador.FindAsync(id);
-            if (jogador == null) return NotFound();
+            if (jogador == null)
+                return NotFound();
+
             return View(jogador);
         }
 
@@ -99,13 +83,14 @@ namespace EliminIQ_TCC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Atualizar(Jogador jogador)
         {
-            if (!UsuarioLogado()) return RedirecionarAoLogin();
+            if (!UsuarioLogado())
+                return RedirecionarAoLogin();
+
             if (!ModelState.IsValid)
                 return View(jogador);
 
             _dbConfig.Jogador.Update(jogador);
             await _dbConfig.SaveChangesAsync();
-            // volta para dashboard
             return RedirectToAction("Dashboard");
         }
 
@@ -113,14 +98,16 @@ namespace EliminIQ_TCC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deletar(int id)
         {
-            if (!UsuarioLogado()) return RedirecionarAoLogin();
+            if (!UsuarioLogado())
+                return RedirecionarAoLogin();
+
             var jogador = await _dbConfig.Jogador.FindAsync(id);
             if (jogador != null)
             {
                 _dbConfig.Jogador.Remove(jogador);
                 await _dbConfig.SaveChangesAsync();
             }
-            // volta para dashboard
+
             return RedirectToAction("Dashboard");
         }
     }
