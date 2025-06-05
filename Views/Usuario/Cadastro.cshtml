@@ -1,4 +1,4 @@
-﻿@model EliminIQ_TCC.Models.Jogador
+﻿@model EliminIQ_TCC.Models.Usuario
 @{
     ViewData["Title"] = "Cadastro de Jogador";
 }
@@ -22,32 +22,32 @@
 
         <div class="form-side">
             <h2>Cadastre-se</h2>
-            <form asp-action="Create" method="post" id="formCadastro">
+            <form asp-action="Cadastro" method="post" id="formCadastro">
                 <!-- Campo oculto para o Id gerado pelo EF -->
-                <input asp-for="Id_Jogador" type="hidden" />
+                <input asp-for="Id_Usuario" type="hidden" />
 
                 <div class="input-field">
                     <i class='bx bxs-user'></i>
-                    <input asp-for="Nome_Jogador" placeholder="Nome" required />
-                    <span asp-validation-for="Nome_Jogador" class="text-danger"></span>
+                    <input asp-for="Nome_Usuario" placeholder="Nome" required />
+                    <span asp-validation-for="Nome_Usuario" class="text-danger"></span>
                 </div>
 
                 <div class="input-field">
                     <i class='bx bxs-envelope'></i>
-                    <input asp-for="Email_Jogador" placeholder="Email" required />
-                    <span asp-validation-for="Email_Jogador" class="text-danger"></span>
+                    <input asp-for="Email_Usuario" placeholder="Email" required />
+                    <span asp-validation-for="Email_Usuario" class="text-danger"></span>
                 </div>
 
                 <div class="input-field">
                     <i class='bx bxs-lock-alt'></i>
-                    <input asp-for="Senha_Jogador" type="password" placeholder="Senha" required />
-                    <span asp-validation-for="Senha_Jogador" class="text-danger"></span>
+                    <input asp-for="Senha_Usuario" type="password" placeholder="Senha" required />
+                    <span asp-validation-for="Senha_Usuario" class="text-danger"></span>
                 </div>
 
                 <button type="submit" class="btn solid">Cadastrar</button>
             </form>
             <p style="margin-top: 10px;">
-                Já tem Conta? <a asp-controller="Jogador" asp-action="Login">Faça o Login</a>
+                Já tem Conta? <a asp-controller="Usuario" asp-action="Login">Faça o Login</a>
             </p>
         </div>
     </div>

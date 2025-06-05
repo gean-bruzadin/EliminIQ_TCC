@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace EliminIQ_TCC.Controllers
 {
-    public class JogadorController : Controller
+    public class UsuarioController : Controller
     {
         private readonly DbConfig _dbConfig;
 
-        public JogadorController(DbConfig dbConfig)
+        public UsuarioController(DbConfig dbConfig)
             => _dbConfig = dbConfig;
 
         // Auxiliares de sessão
         private bool UsuarioLogado() =>
-            HttpContext.Session.GetInt32("JogadorId") != null;
+            HttpContext.Session.GetInt32("UsuarioId") != null;
 
         private IActionResult RedirecionarAoLogin() =>
             RedirectToAction("Login", "Auth");
-        // passa a apontar para AuthController em vez de JogadorController
+        // passa a apontar para AuthController em vez de UsuarioController
 
         // ------- DASHBOARD (permanece aqui) -------
 
@@ -29,24 +29,24 @@ namespace EliminIQ_TCC.Controllers
             if (!UsuarioLogado())
                 return RedirecionarAoLogin();
 
-            ViewBag.Nome = HttpContext.Session.GetString("JogadorNome");
+            ViewBag.Nome = HttpContext.Session.GetString("UsuarioNome");
             return View();
         }
 
-        // ------- CRUD de Jogador (vai sempre para Dashboard) -------
+        // ------- CRUD de Usuario (vai sempre para Dashboard) -------
 
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Cadastro()
             => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Jogador jogador)
+        public async Task<IActionResult> Cadastro(Usuario usuario)
         {
-            if (jogador == null)
-                return View(jogador);
+            if (usuario == null)
+                return View(usuario);
 
-            await _dbConfig.Jogador.AddAsync(jogador);
+            await _dbConfig.Usuario.AddAsync(usuario);
             await _dbConfig.SaveChangesAsync();
 
             // Após cadastro, manda para Auth/Login
@@ -59,11 +59,11 @@ namespace EliminIQ_TCC.Controllers
             if (!UsuarioLogado())
                 return RedirecionarAoLogin();
 
-            var jogador = await _dbConfig.Jogador.FindAsync(id);
-            if (jogador == null)
+            var usuario = await _dbConfig.Usuario.FindAsync(id);
+            if (usuario == null)
                 return NotFound();
 
-            return View(jogador);
+            return View(usuario);
         }
 
         [HttpGet]
@@ -72,24 +72,24 @@ namespace EliminIQ_TCC.Controllers
             if (!UsuarioLogado())
                 return RedirecionarAoLogin();
 
-            var jogador = await _dbConfig.Jogador.FindAsync(id);
-            if (jogador == null)
+            var usuario = await _dbConfig.Usuario.FindAsync(id);
+            if (usuario == null)
                 return NotFound();
 
-            return View(jogador);
+            return View(usuario);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Atualizar(Jogador jogador)
+        public async Task<IActionResult> Atualizar(Usuario usuario)
         {
             if (!UsuarioLogado())
                 return RedirecionarAoLogin();
 
             if (!ModelState.IsValid)
-                return View(jogador);
+                return View(usuario);
 
-            _dbConfig.Jogador.Update(jogador);
+            _dbConfig.Usuario.Update(usuario);
             await _dbConfig.SaveChangesAsync();
             return RedirectToAction("Dashboard");
         }
@@ -101,10 +101,10 @@ namespace EliminIQ_TCC.Controllers
             if (!UsuarioLogado())
                 return RedirecionarAoLogin();
 
-            var jogador = await _dbConfig.Jogador.FindAsync(id);
-            if (jogador != null)
+            var usuario = await _dbConfig.Usuario.FindAsync(id);
+            if (usuario != null)
             {
-                _dbConfig.Jogador.Remove(jogador);
+                _dbConfig.Usuario.Remove(usuario);
                 await _dbConfig.SaveChangesAsync();
             }
 

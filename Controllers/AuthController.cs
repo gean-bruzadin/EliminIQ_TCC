@@ -28,21 +28,21 @@ namespace EliminIQ_TCC.Controllers
                 return View();
             }
 
-            var jogador = await _dbConfig.Jogador
-                .FirstOrDefaultAsync(j =>
-                    j.Email_Jogador == email.Trim() &&
-                    j.Senha_Jogador == senha.Trim());
+            var usuario = await _dbConfig.Usuario
+                .FirstOrDefaultAsync(u =>
+                    u.Email_Usuario == email.Trim() &&
+                    u.Senha_Usuario == senha.Trim());
 
-            if (jogador == null)
+            if (usuario == null)
             {
                 ViewBag.Erro = "Email ou senha inválidos.";
                 return View();
             }
 
-            HttpContext.Session.SetInt32("JogadorId", jogador.Id_Jogador);
-            HttpContext.Session.SetString("JogadorNome", jogador.Nome_Jogador);
+            HttpContext.Session.SetInt32("UsuarioId", usuario.Id_Usuario);
+            HttpContext.Session.SetString("UsuarioNome", usuario.Nome_Usuario);
 
-            return RedirectToAction("Dashboard", "Jogador");
+            return RedirectToAction("Dashboard", "Usuario");
         }
 
         [HttpGet]

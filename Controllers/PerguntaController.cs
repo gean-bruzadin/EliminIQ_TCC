@@ -6,23 +6,21 @@ using System.Threading.Tasks;
 
 namespace EliminIQ_TCC.Controllers
 {
-    public class QuizzController : Controller
+    public class PerguntaController : Controller
     {
         private readonly DbConfig _db;
 
-        public QuizzController(DbConfig db)
+        public PerguntaController(DbConfig db)
         {
             _db = db;
         }
 
         public async Task<IActionResult> Index()
         {
-            var quizzes = await _db.Quizz
-                .Include(q => q.TipoQuizz)
-                .Include(q => q.Dificuldade)
-                .Include(q => q.Privacidade)
+            var perguntas = await _db.Pergunta
+                .Include(p => p.Quizz)
                 .ToListAsync();
-            return View(quizzes);
+            return View(perguntas);
         }
 
         public IActionResult Create()
@@ -32,64 +30,62 @@ namespace EliminIQ_TCC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Quizz quizz)
+        public async Task<IActionResult> Create(Pergunta pergunta)
         {
             if (ModelState.IsValid)
             {
-                _db.Quizz.Add(quizz);
+                _db.Pergunta.Add(pergunta);
                 await _db.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(quizz);
+            return View(pergunta);
         }
 
         public async Task<IActionResult> Details(int id)
         {
-            var quizz = await _db.Quizz
-                .Include(q => q.TipoQuizz)
-                .Include(q => q.Dificuldade)
-                .Include(q => q.Privacidade)
-                .FirstOrDefaultAsync(q => q.Id_Quiz == id);
-            if (quizz == null)
+            var pergunta = await _db.Pergunta
+                .Include(p => p.Quizz)
+                .FirstOrDefaultAsync(p => p.Id_Pergunta == id);
+            if (pergunta == null)
                 return NotFound();
-            return View(quizz);
+            return View(pergunta);
         }
 
         public async Task<IActionResult> Edit(int id)
         {
-            var quizz = await _db.Quizz.FindAsync(id);
-            if (quizz == null)
+            var pergunta = await _db.Pergunta.FindAsync(id);
+            if (pergunta == null)
                 return NotFound();
-            return View(quizz);
+            return View(pergunta);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Quizz quizz)
+        public async Task<IActionResult> Edit(Pergunta pergunta)
         {
             if (ModelState.IsValid)
             {
-                _db.Quizz.Update(quizz);
+                _db.Pergunta.Update(pergunta);
                 await _db.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(quizz);
+            return View(pergunta);
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            var quizz = await _db.Quizz.FindAsync(id);
-            if (quizz == null)
+            var pergunta = await _db.Pergunta.FindAsync(id);
+            if (pergunta == null)
                 return NotFound();
-            return View(quizz);
+            return View(pergunta);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var quizz = await _db.Quizz.FindAsync(id);
-            _db.Quizz.Remove(quizz);
+            var pergunta = await _db.Pergunta.FindAsync(id);
+            _db.Pergunta.Remove(pergunta);
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

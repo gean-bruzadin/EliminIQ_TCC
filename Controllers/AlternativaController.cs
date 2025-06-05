@@ -6,23 +6,21 @@ using System.Threading.Tasks;
 
 namespace EliminIQ_TCC.Controllers
 {
-    public class QuizzController : Controller
+    public class AlternativaController : Controller
     {
         private readonly DbConfig _db;
 
-        public QuizzController(DbConfig db)
+        public AlternativaController(DbConfig db)
         {
             _db = db;
         }
 
         public async Task<IActionResult> Index()
         {
-            var quizzes = await _db.Quizz
-                .Include(q => q.TipoQuizz)
-                .Include(q => q.Dificuldade)
-                .Include(q => q.Privacidade)
+            var alternativas = await _db.Alternativa
+                .Include(a => a.Pergunta)
                 .ToListAsync();
-            return View(quizzes);
+            return View(alternativas);
         }
 
         public IActionResult Create()
@@ -32,64 +30,62 @@ namespace EliminIQ_TCC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Quizz quizz)
+        public async Task<IActionResult> Create(Alternativa alternativa)
         {
             if (ModelState.IsValid)
             {
-                _db.Quizz.Add(quizz);
+                _db.Alternativa.Add(alternativa);
                 await _db.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(quizz);
+            return View(alternativa);
         }
 
         public async Task<IActionResult> Details(int id)
         {
-            var quizz = await _db.Quizz
-                .Include(q => q.TipoQuizz)
-                .Include(q => q.Dificuldade)
-                .Include(q => q.Privacidade)
-                .FirstOrDefaultAsync(q => q.Id_Quiz == id);
-            if (quizz == null)
+            var alternativa = await _db.Alternativa
+                .Include(a => a.Pergunta)
+                .FirstOrDefaultAsync(a => a.Id_Alternativa == id);
+            if (alternativa == null)
                 return NotFound();
-            return View(quizz);
+            return View(alternativa);
         }
 
         public async Task<IActionResult> Edit(int id)
         {
-            var quizz = await _db.Quizz.FindAsync(id);
-            if (quizz == null)
+            var alternativa = await _db.Alternativa.FindAsync(id);
+            if (alternativa == null)
                 return NotFound();
-            return View(quizz);
+            return View(alternativa);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Quizz quizz)
+        public async Task<IActionResult> Edit(Alternativa alternativa)
         {
             if (ModelState.IsValid)
             {
-                _db.Quizz.Update(quizz);
+                _db.Alternativa.Update(alternativa);
                 await _db.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(quizz);
+            return View(alternativa);
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            var quizz = await _db.Quizz.FindAsync(id);
-            if (quizz == null)
+            var alternativa = await _db.Alternativa.FindAsync(id);
+            if (alternativa == null)
                 return NotFound();
-            return View(quizz);
+            return View(alternativa);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var quizz = await _db.Quizz.FindAsync(id);
-            _db.Quizz.Remove(quizz);
+            var alternativa = await _db.Alternativa.FindAsync(id);
+            _db.Alternativa.Remove(alternativa);
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
