@@ -8,7 +8,7 @@ namespace EliminIQ_TCC.Config
         public DbConfig(DbContextOptions<DbConfig> options) : base(options) { }
 
         public DbSet<Jogador> Jogador { get; set; }
-        public DbSet<Quiz> Quiz { get; set; }
+        public DbSet<Quizz> Quiz { get; set; }
 
     }
 }

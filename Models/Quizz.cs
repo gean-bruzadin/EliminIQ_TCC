@@ -2,11 +2,11 @@
 
 namespace EliminIQ_TCC.Models
 {
-    public class Quiz
+    public class Quizz
     {
         [Key]
-        public int Id_Quiz { get; set; }
-        public string Nome_Quiz { get; set; }
+        public int Id_Quizz { get; set; }
+        public string Nome_Quizz { get; set; }
         public int Qtd_perguntas { get; set; }
     }
 }

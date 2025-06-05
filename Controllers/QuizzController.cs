@@ -5,54 +5,54 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EliminIQ_TCC.Controllers
 {
-    public class QuizController : Controller
+    public class QuizzController : Controller
     {
         private readonly DbConfig _dbConfig;
 
-        public QuizController(DbConfig dbConfig)
+        public QuizzController(DbConfig dbConfig)
         {
             _dbConfig = dbConfig;
         }
 
         public async Task<ActionResult> BuscarPorId(int id)
         {
-            var Quiz = await _dbConfig.Quiz.FindAsync(id);
-            return View(Quiz);
+            var Quizz = await _dbConfig.Quiz.FindAsync(id);
+            return View(Quizz);
         }
 
-        public async Task<ActionResult> Listar_Quiz()
+        public async Task<ActionResult> Listar_Quizz()
         {
-            var Quiz = await _dbConfig.Quiz.ToListAsync();
-            return View(Quiz);
+            var Quizz = await _dbConfig.Quiz.ToListAsync();
+            return View(Quizz);
         }
 
         [HttpGet]
-        public ActionResult Criar()
+        public ActionResult Criar_Quizz()
         {
             return View();
         }
 
         [HttpPost]
-        public async Task<ActionResult> Criar_Quiz(Quiz quiz)
+        public async Task<ActionResult> Criar_Quizz(Quizz quiz)
         {
-            await _dbConfig.Quiz.AddAsync(quiz);
+            await _dbConfig.Quizz.AddAsync(quizz);
             await _dbConfig.SaveChangesAsync();
             return View();
         }
 
         [HttpPost]
-        public async Task<ActionResult> Atualizar_Quiz(Quiz quiz)
+        public async Task<ActionResult> Atualizar_Quizz(Quizz quiz)
         {
-            _dbConfig.Quiz.Update(quiz);
+            _dbConfig.Quizz.Update(quiz);
             await _dbConfig.SaveChangesAsync();
             return View();
         }
 
         [HttpDelete]
-        public async Task<ActionResult> Deletar_Quiz(int id)
+        public async Task<ActionResult> Deletar_Quizz(int id)
         {
             var quiz = _dbConfig.Quiz.Find(id);
-            _dbConfig.Quiz.Remove(quiz);
+            _dbConfig.Quizz.Remove(quiz);
             await _dbConfig.SaveChangesAsync();
             return View();
         }
