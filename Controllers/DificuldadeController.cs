@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace EliminIQ_TCC.Controllers
 {
-    public class AlternativaController : Controller
+    public class DificuldadeController : Controller
     {
         private readonly DbConfig _db;
 
-        public AlternativaController(DbConfig db)
+        public DificuldadeController(DbConfig db)
         {
             _db = db;
         }
@@ -23,14 +23,14 @@ namespace EliminIQ_TCC.Controllers
             return View(alternativas);
         }
 
-        public IActionResult CriarAlternativa()
+        public IActionResult CriarDificuldade()
         {
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CriarAlternativa(Alternativa alternativa)
+        public async Task<IActionResult> CriarDificuldade(Alternativa alternativa)
         {
             if (ModelState.IsValid)
             {
@@ -41,7 +41,7 @@ namespace EliminIQ_TCC.Controllers
             return View(alternativa);
         }
 
-        public async Task<IActionResult> DetalhesAlternativa(int id)
+        public async Task<IActionResult> DetalhesDificuldade(int id)
         {
             var alternativa = await _db.Alternativa
                 .Include(a => a.Pergunta)
@@ -61,7 +61,7 @@ namespace EliminIQ_TCC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarAlternativa(Alternativa alternativa)
+        public async Task<IActionResult> EditarDificuldade(Alternativa alternativa)
         {
             if (ModelState.IsValid)
             {
@@ -72,7 +72,7 @@ namespace EliminIQ_TCC.Controllers
             return View(alternativa);
         }
 
-        public async Task<IActionResult> DeletarAlternativa(int id)
+        public async Task<IActionResult> DeletarDificuldade(int id)
         {
             var alternativa = await _db.Alternativa.FindAsync(id);
             if (alternativa == null)

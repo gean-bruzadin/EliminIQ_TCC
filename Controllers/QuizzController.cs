@@ -25,14 +25,14 @@ namespace EliminIQ_TCC.Controllers
             return View(quizzes);
         }
 
-        public IActionResult Create()
+        public IActionResult CriarQuizz()
         {
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Quizz quizz)
+        public async Task<IActionResult> CriarQuizz(Quizz quizz)
         {
             if (ModelState.IsValid)
             {
@@ -43,7 +43,7 @@ namespace EliminIQ_TCC.Controllers
             return View(quizz);
         }
 
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> DetalhesQuizz(int id)
         {
             var quizz = await _db.Quizz
                 .Include(q => q.TipoQuizz)
@@ -65,7 +65,7 @@ namespace EliminIQ_TCC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Quizz quizz)
+        public async Task<IActionResult> EditarQuizz(Quizz quizz)
         {
             if (ModelState.IsValid)
             {
@@ -76,7 +76,7 @@ namespace EliminIQ_TCC.Controllers
             return View(quizz);
         }
 
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeletarQuizz(int id)
         {
             var quizz = await _db.Quizz.FindAsync(id);
             if (quizz == null)
@@ -86,7 +86,7 @@ namespace EliminIQ_TCC.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> ConfirmarDeletar(int id)
         {
             var quizz = await _db.Quizz.FindAsync(id);
             _db.Quizz.Remove(quizz);
