@@ -1,5 +1,6 @@
 ﻿using EliminIQ_TCC.Config;
 using EliminIQ_TCC.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -8,86 +9,87 @@ namespace EliminIQ_TCC.Controllers
 {
     public class PerguntaController : Controller
     {
-        private readonly DbConfig _db;
+        private readonly DbConfig _dbConfig;
 
-        public PerguntaController(DbConfig db)
-        {
-            _db = db;
-        }
+        public PerguntaController(DbConfig dbConfig)
+            => _dbConfig = dbConfig;
 
-        public async Task<IActionResult> Index()
-        {
-            var perguntas = await _db.Pergunta
-                .Include(p => p.Quizz)
-                .ToListAsync();
-            return View(perguntas);
-        }
 
-        public IActionResult CriarPergunta()
+
+        // ------- DASHBOARD (permanece aqui) -------
+
+        public IActionResult Dashboard()
         {
+            if (!UsuarioLogado())
+                return RedirecionarAoLogin();
+
+            ViewBag.Nome = HttpContext.Session.GetString("UsuarioNome");
             return View();
         }
+
+        // ------- CRUD de Usuario (vai sempre para Dashboard) -------
+
+        [HttpGet]
+        public IActionResult CriarPergunta()
+            => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CriarPergunta(Pergunta pergunta)
         {
-            if (ModelState.IsValid)
-            {
-                _db.Pergunta.Add(pergunta);
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            if (pergunta == null)
+                return View(pergunta);
+
+            await _dbConfig.Pergunta.AddAsync(pergunta);
+            await _dbConfig.SaveChangesAsync();
+
+            // Após cadastro, manda para Auth/Login
+            return RedirectToAction("Alternativa");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditarPergunta(int id)
+        {
+
+            var pergunta = await _dbConfig.Pergunta.FindAsync(id);
+            if (pergunta == null)
+                return NotFound();
+
             return View(pergunta);
         }
 
-        public async Task<IActionResult> DetalhesPergunta(int id)
+        [HttpGet]
+        public async Task<IActionResult> Atualizar(int id)
         {
-            var pergunta = await _db.Pergunta
-                .Include(p => p.Quizz)
-                .FirstOrDefaultAsync(p => p.Id_Pergunta == id);
-            if (pergunta == null)
-                return NotFound();
-            return View(pergunta);
-        }
 
-        public async Task<IActionResult> Edit(int id)
-        {
-            var pergunta = await _db.Pergunta.FindAsync(id);
+            var pergunta = await _dbConfig.Pergunta.FindAsync(id);
             if (pergunta == null)
                 return NotFound();
+
             return View(pergunta);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarPergunta(Pergunta pergunta)
+        public async Task<IActionResult> AtualizarPergunta(Pergunta pergunta)
         {
-            if (ModelState.IsValid)
-            {
-                _db.Pergunta.Update(pergunta);
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(pergunta);
+            _dbConfig.Pergunta.Update(pergunta);
+            await _dbConfig.SaveChangesAsync();
+            return RedirectToAction("Dashboard");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletarPergunta(int id)
         {
-            var pergunta = await _db.Pergunta.FindAsync(id);
-            if (pergunta == null)
-                return NotFound();
-            return View(pergunta);
-        }
+            var pergunta = await _dbConfig.Pergunta.FindAsync(id);
+            if (pergunta != null)
+            {
+                _dbConfig.Pergunta.Remove(pergunta);
+                await _dbConfig.SaveChangesAsync();
+            }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConfirmarDeletar(int id)
-        {
-            var pergunta = await _db.Pergunta.FindAsync(id);
-            _db.Pergunta.Remove(pergunta);
-            await _db.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Dashboard");
         }
     }
 }

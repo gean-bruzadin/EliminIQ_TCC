@@ -1,5 +1,6 @@
 ﻿using EliminIQ_TCC.Config;
 using EliminIQ_TCC.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -8,86 +9,87 @@ namespace EliminIQ_TCC.Controllers
 {
     public class DificuldadeController : Controller
     {
-        private readonly DbConfig _db;
+        private readonly DbConfig _dbConfig;
 
-        public DificuldadeController(DbConfig db)
-        {
-            _db = db;
-        }
+        public DificuldadeController(DbConfig dbConfig)
+            => _dbConfig = dbConfig;
 
-        public async Task<IActionResult> Index()
-        {
-            var alternativas = await _db.Alternativa
-                .Include(a => a.Pergunta)
-                .ToListAsync();
-            return View(alternativas);
-        }
 
-        public IActionResult CriarDificuldade()
+
+        // ------- DASHBOARD (permanece aqui) -------
+
+        public IActionResult Dashboard()
         {
+            if (!UsuarioLogado())
+                return RedirecionarAoLogin();
+
+            ViewBag.Nome = HttpContext.Session.GetString("UsuarioNome");
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CriarDificuldade(Alternativa alternativa)
-        {
-            if (ModelState.IsValid)
-            {
-                _db.Alternativa.Add(alternativa);
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(alternativa);
-        }
+        // ------- CRUD de Usuario (vai sempre para Dashboard) -------
 
-        public async Task<IActionResult> DetalhesDificuldade(int id)
-        {
-            var alternativa = await _db.Alternativa
-                .Include(a => a.Pergunta)
-                .FirstOrDefaultAsync(a => a.Id_Alternativa == id);
-            if (alternativa == null)
-                return NotFound();
-            return View(alternativa);
-        }
-
-        public async Task<IActionResult> Edit(int id)
-        {
-            var alternativa = await _db.Alternativa.FindAsync(id);
-            if (alternativa == null)
-                return NotFound();
-            return View(alternativa);
-        }
+        [HttpGet]
+        public IActionResult CriarDificudade()
+            => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarDificuldade(Alternativa alternativa)
+        public async Task<IActionResult> CriarDificuldade(Dificuldade dificuldade)
         {
-            if (ModelState.IsValid)
-            {
-                _db.Alternativa.Update(alternativa);
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(alternativa);
+            if (dificuldade == null)
+                return View(dificuldade);
+
+            await _dbConfig.Dificuldade.AddAsync(dificuldade);
+            await _dbConfig.SaveChangesAsync();
+
+            // Após cadastro, manda para Auth/Login
+            return RedirectToAction("Dificuldade");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> EditarDificuldade(int id)
+        {
+
+            var dificuldade = await _dbConfig.Dificuldade.FindAsync(id);
+            if (dificuldade == null)
+                return NotFound();
+
+            return View(dificuldade);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Atualizar(int id)
+        {
+
+            var dificuldade = await _dbConfig.Dificuldade.FindAsync(id);
+            if (dificuldade == null)
+                return NotFound();
+
+            return View(dificuldade);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AtualizarDificuldade(Dificuldade dificuldade)
+        {
+            _dbConfig.Dificuldade.Update(dificuldade);
+            await _dbConfig.SaveChangesAsync();
+            return RedirectToAction("Dashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletarDificuldade(int id)
         {
-            var alternativa = await _db.Alternativa.FindAsync(id);
-            if (alternativa == null)
-                return NotFound();
-            return View(alternativa);
-        }
+            var dificuldade = await _dbConfig.Dificuldade.FindAsync(id);
+            if (dificuldade != null)
+            {
+                _dbConfig.Dificuldade.Remove(dificuldade);
+                await _dbConfig.SaveChangesAsync();
+            }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ComfirmarDeletar(int id)
-        {
-            var alternativa = await _db.Alternativa.FindAsync(id);
-            _db.Alternativa.Remove(alternativa);
-            await _db.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Dashboard");
         }
     }
 }

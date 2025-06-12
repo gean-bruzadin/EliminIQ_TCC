@@ -1,5 +1,6 @@
 ﻿using EliminIQ_TCC.Config;
 using EliminIQ_TCC.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -8,90 +9,87 @@ namespace EliminIQ_TCC.Controllers
 {
     public class QuizzController : Controller
     {
-        private readonly DbConfig _db;
+        private readonly DbConfig _dbConfig;
 
-        public QuizzController(DbConfig db)
-        {
-            _db = db;
-        }
+        public QuizzController(DbConfig dbConfig)
+            => _dbConfig = dbConfig;
 
-        public async Task<IActionResult> Index()
-        {
-            var quizzes = await _db.Quizz
-                .Include(q => q.TipoQuizz)
-                .Include(q => q.Dificuldade)
-                .Include(q => q.Privacidade)
-                .ToListAsync();
-            return View(quizzes);
-        }
 
-        public IActionResult CriarQuizz()
+
+        // ------- DASHBOARD (permanece aqui) -------
+
+        public IActionResult Dashboard()
         {
+            if (!UsuarioLogado())
+                return RedirecionarAoLogin();
+
+            ViewBag.Nome = HttpContext.Session.GetString("UsuarioNome");
             return View();
         }
+
+        // ------- CRUD de Usuario (vai sempre para Dashboard) -------
+
+        [HttpGet]
+        public IActionResult CriarQuizz()
+            => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CriarQuizz(Quizz quizz)
         {
-            if (ModelState.IsValid)
-            {
-                _db.Quizz.Add(quizz);
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            if (quizz == null)
+                return View(quizz);
+
+            await _dbConfig.Quizz.AddAsync(quizz);
+            await _dbConfig.SaveChangesAsync();
+
+            // Após cadastro, manda para Auth/Login
+            return RedirectToAction("Alternativa");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditarQuiz(int id)
+        {
+
+            var quizz = await _dbConfig.Quizz.FindAsync(id);
+            if (quizz == null)
+                return NotFound();
+
             return View(quizz);
         }
 
-        public async Task<IActionResult> DetalhesQuizz(int id)
+        [HttpGet]
+        public async Task<IActionResult> Atualizar(int id)
         {
-            var quizz = await _db.Quizz
-                .Include(q => q.TipoQuizz)
-                .Include(q => q.Dificuldade)
-                .Include(q => q.Privacidade)
-                .FirstOrDefaultAsync(q => q.Id_Quiz == id);
-            if (quizz == null)
-                return NotFound();
-            return View(quizz);
-        }
 
-        public async Task<IActionResult> Edit(int id)
-        {
-            var quizz = await _db.Quizz.FindAsync(id);
+            var quizz = await _dbConfig.Quizz.FindAsync(id);
             if (quizz == null)
                 return NotFound();
+
             return View(quizz);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarQuizz(Quizz quizz)
+        public async Task<IActionResult> AtualizarQuizz(Quizz quizz)
         {
-            if (ModelState.IsValid)
-            {
-                _db.Quizz.Update(quizz);
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(quizz);
+            _dbConfig.Quizz.Update(quizz);
+            await _dbConfig.SaveChangesAsync();
+            return RedirectToAction("Dashboard");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletarQuizz(int id)
         {
-            var quizz = await _db.Quizz.FindAsync(id);
-            if (quizz == null)
-                return NotFound();
-            return View(quizz);
-        }
+            var quizz = await _dbConfig.Quizz.FindAsync(id);
+            if (quizz != null)
+            {
+                _dbConfig.Quizz.Remove(quizz);
+                await _dbConfig.SaveChangesAsync();
+            }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConfirmarDeletar(int id)
-        {
-            var quizz = await _db.Quizz.FindAsync(id);
-            _db.Quizz.Remove(quizz);
-            await _db.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Dashboard");
         }
     }
 }

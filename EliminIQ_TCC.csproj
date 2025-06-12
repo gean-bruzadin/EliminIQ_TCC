@@ -26,6 +26,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Views\Dificuldade\" />
+    <Folder Include="Views\Privacidade\" />
+    <Folder Include="Views\TipoQuizz\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 

@@ -1,5 +1,6 @@
 ﻿using EliminIQ_TCC.Config;
 using EliminIQ_TCC.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -8,86 +9,87 @@ namespace EliminIQ_TCC.Controllers
 {
     public class PrivacidadeController : Controller
     {
-        private readonly DbConfig _db;
+        private readonly DbConfig _dbConfig;
 
-        public PrivacidadeController(DbConfig db)
-        {
-            _db = db;
-        }
+        public PrivacidadeController(DbConfig dbConfig)
+            => _dbConfig = dbConfig;
 
-        public async Task<IActionResult> Index()
-        {
-            var alternativas = await _db.Alternativa
-                .Include(a => a.Pergunta)
-                .ToListAsync();
-            return View(alternativas);
-        }
 
-        public IActionResult CriarPrivacidade()
+
+        // ------- DASHBOARD (permanece aqui) -------
+
+        public IActionResult Dashboard()
         {
+            if (!UsuarioLogado())
+                return RedirecionarAoLogin();
+
+            ViewBag.Nome = HttpContext.Session.GetString("UsuarioNome");
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CriarPrivacidade(Alternativa alternativa)
-        {
-            if (ModelState.IsValid)
-            {
-                _db.Alternativa.Add(alternativa);
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(alternativa);
-        }
+        // ------- CRUD de Usuario (vai sempre para Dashboard) -------
 
-        public async Task<IActionResult> DetalhesPrivacidade(int id)
-        {
-            var alternativa = await _db.Alternativa
-                .Include(a => a.Pergunta)
-                .FirstOrDefaultAsync(a => a.Id_Alternativa == id);
-            if (alternativa == null)
-                return NotFound();
-            return View(alternativa);
-        }
-
-        public async Task<IActionResult> Edit(int id)
-        {
-            var alternativa = await _db.Alternativa.FindAsync(id);
-            if (alternativa == null)
-                return NotFound();
-            return View(alternativa);
-        }
+        [HttpGet]
+        public IActionResult CriarPrivacidade()
+            => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarPrivacidade(Alternativa alternativa)
+        public async Task<IActionResult> CriarPrivacidade(Privacidade privacidade)
         {
-            if (ModelState.IsValid)
-            {
-                _db.Alternativa.Update(alternativa);
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(alternativa);
+            if (privacidade == null)
+                return View(privacidade);
+
+            await _dbConfig.Privacidade.AddAsync(privacidade);
+            await _dbConfig.SaveChangesAsync();
+
+            // Após cadastro, manda para Auth/Login
+            return RedirectToAction("Alternativa");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> EditarPrivacidade(int id)
+        {
+
+            var privacidade = await _dbConfig.Privacidade.FindAsync(id);
+            if (privacidade == null)
+                return NotFound();
+
+            return View(privacidade);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Atualizar(int id)
+        {
+
+            var privacidade = await _dbConfig.Privacidade.FindAsync(id);
+            if (privacidade == null)
+                return NotFound();
+
+            return View(privacidade);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AtualizarPrivacidade(Privacidade privacidade)
+        {
+            _dbConfig.Privacidade.Update(privacidade);
+            await _dbConfig.SaveChangesAsync();
+            return RedirectToAction("Dashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletarPrivacidade(int id)
         {
-            var alternativa = await _db.Alternativa.FindAsync(id);
-            if (alternativa == null)
-                return NotFound();
-            return View(alternativa);
-        }
+            var privacidade = await _dbConfig.Privacidade.FindAsync(id);
+            if (privacidade != null)
+            {
+                _dbConfig.Privacidade.Remove(privacidade);
+                await _dbConfig.SaveChangesAsync();
+            }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ComfirmarDeletar(int id)
-        {
-            var alternativa = await _db.Alternativa.FindAsync(id);
-            _db.Alternativa.Remove(alternativa);
-            await _db.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Dashboard");
         }
     }
 }

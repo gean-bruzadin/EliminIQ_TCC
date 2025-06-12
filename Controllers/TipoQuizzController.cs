@@ -1,5 +1,6 @@
 ﻿using EliminIQ_TCC.Config;
 using EliminIQ_TCC.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -8,86 +9,87 @@ namespace EliminIQ_TCC.Controllers
 {
     public class TipoQuizzController : Controller
     {
-        private readonly DbConfig _db;
+        private readonly DbConfig _dbConfig;
 
-        public TipoQuizzController(DbConfig db)
-        {
-            _db = db;
-        }
+        public TipoQuizzController(DbConfig dbConfig)
+            => _dbConfig = dbConfig;
 
-        public async Task<IActionResult> Index()
-        {
-            var alternativas = await _db.Alternativa
-                .Include(a => a.Pergunta)
-                .ToListAsync();
-            return View(alternativas);
-        }
 
-        public IActionResult CriarTipo()
+
+        // ------- DASHBOARD (permanece aqui) -------
+
+        public IActionResult Dashboard()
         {
+            if (!UsuarioLogado())
+                return RedirecionarAoLogin();
+
+            ViewBag.Nome = HttpContext.Session.GetString("UsuarioNome");
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CriarTipo(Alternativa alternativa)
-        {
-            if (ModelState.IsValid)
-            {
-                _db.Alternativa.Add(alternativa);
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(alternativa);
-        }
+        // ------- CRUD de Usuario (vai sempre para Dashboard) -------
 
-        public async Task<IActionResult> DetalhesTipo(int id)
-        {
-            var alternativa = await _db.Alternativa
-                .Include(a => a.Pergunta)
-                .FirstOrDefaultAsync(a => a.Id_Alternativa == id);
-            if (alternativa == null)
-                return NotFound();
-            return View(alternativa);
-        }
-
-        public async Task<IActionResult> Edit(int id)
-        {
-            var alternativa = await _db.Alternativa.FindAsync(id);
-            if (alternativa == null)
-                return NotFound();
-            return View(alternativa);
-        }
+        [HttpGet]
+        public IActionResult CriarTipoQuizz()
+            => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarTipo(Alternativa alternativa)
+        public async Task<IActionResult> CriarTipoQuizz(TipoQuizz tipoquizz)
         {
-            if (ModelState.IsValid)
-            {
-                _db.Alternativa.Update(alternativa);
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(alternativa);
+            if (tipoquizz == null)
+                return View(tipoquizz);
+
+            await _dbConfig.TipoQuizz.AddAsync(tipoquizz);
+            await _dbConfig.SaveChangesAsync();
+
+            // Após cadastro, manda para Auth/Login
+            return RedirectToAction("Alternativa");
         }
 
-        public async Task<IActionResult> DeletarTipo(int id)
+        [HttpGet]
+        public async Task<IActionResult> EditarTipoQuiz(int id)
         {
-            var alternativa = await _db.Alternativa.FindAsync(id);
-            if (alternativa == null)
+
+            var tipoquizz = await _dbConfig.TipoQuizz.FindAsync(id);
+            if (tipoquizz == null)
                 return NotFound();
-            return View(alternativa);
+
+            return View(tipoquizz);
         }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ComfirmarDeletar(int id)
+        [HttpGet]
+        public async Task<IActionResult> Atualizar(int id)
         {
-            var alternativa = await _db.Alternativa.FindAsync(id);
-            _db.Alternativa.Remove(alternativa);
-            await _db.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            var tipoquizz = await _dbConfig.TipoQuizz.FindAsync(id);
+            if (tipoquizz == null)
+                return NotFound();
+
+            return View(tipoquizz);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AtualizarTipoQuizz(TipoQuizz tipoquizz)
+        {
+            _dbConfig.TipoQuizz.Update(tipoquizz);
+            await _dbConfig.SaveChangesAsync();
+            return RedirectToAction("Dashboard");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletarTipoQuizz(int id)
+        {
+            var tipoquizz = await _dbConfig.TipoQuizz.FindAsync(id);
+            if (tipoquizz != null)
+            {
+                _dbConfig.TipoQuizz.Remove(tipoquizz);
+                await _dbConfig.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Dashboard");
         }
     }
 }

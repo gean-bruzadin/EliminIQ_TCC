@@ -1,5 +1,6 @@
 ﻿using EliminIQ_TCC.Config;
 using EliminIQ_TCC.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -8,86 +9,87 @@ namespace EliminIQ_TCC.Controllers
 {
     public class AlternativaController : Controller
     {
-        private readonly DbConfig _db;
+        private readonly DbConfig _dbConfig;
 
-        public AlternativaController(DbConfig db)
-        {
-            _db = db;
-        }
+        public AlternativaController(DbConfig dbConfig)
+            => _dbConfig = dbConfig;
 
-        public async Task<IActionResult> Index()
-        {
-            var alternativas = await _db.Alternativa
-                .Include(a => a.Pergunta)
-                .ToListAsync();
-            return View(alternativas);
-        }
+    
 
-        public IActionResult CriarAlternativa()
+        // ------- DASHBOARD (permanece aqui) -------
+
+        public IActionResult Dashboard()
         {
+            if (!UsuarioLogado())
+                return RedirecionarAoLogin();
+
+            ViewBag.Nome = HttpContext.Session.GetString("UsuarioNome");
             return View();
         }
+
+        // ------- CRUD de Usuario (vai sempre para Dashboard) -------
+
+        [HttpGet]
+        public IActionResult CriarAlternativa()
+            => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CriarAlternativa(Alternativa alternativa)
         {
-            if (ModelState.IsValid)
-            {
-                _db.Alternativa.Add(alternativa);
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            if (alternativa == null)
+                return View(alternativa);
+
+            await _dbConfig.Alternativa.AddAsync(alternativa);
+            await _dbConfig.SaveChangesAsync();
+
+            // Após cadastro, manda para Auth/Login
+            return RedirectToAction("Alternativa");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditarAlternativa(int id)
+        {
+
+            var alternativa = await _dbConfig.Alternativa.FindAsync(id);
+            if (alternativa == null)
+                return NotFound();
+
             return View(alternativa);
         }
 
-        public async Task<IActionResult> DetalhesAlternativa(int id)
+        [HttpGet]
+        public async Task<IActionResult> Atualizar(int id)
         {
-            var alternativa = await _db.Alternativa
-                .Include(a => a.Pergunta)
-                .FirstOrDefaultAsync(a => a.Id_Alternativa == id);
-            if (alternativa == null)
-                return NotFound();
-            return View(alternativa);
-        }
 
-        public async Task<IActionResult> Edit(int id)
-        {
-            var alternativa = await _db.Alternativa.FindAsync(id);
+            var alternativa = await _dbConfig.Alternativa.FindAsync(id);
             if (alternativa == null)
                 return NotFound();
+
             return View(alternativa);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditarAlternativa(Alternativa alternativa)
+        public async Task<IActionResult> AtualizarAlternativa(Alternativa alternativa)
         {
-            if (ModelState.IsValid)
-            {
-                _db.Alternativa.Update(alternativa);
-                await _db.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(alternativa);
+            _dbConfig.Alternativa.Update(alternativa);
+            await _dbConfig.SaveChangesAsync();
+            return RedirectToAction("Dashboard");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletarAlternativa(int id)
         {
-            var alternativa = await _db.Alternativa.FindAsync(id);
-            if (alternativa == null)
-                return NotFound();
-            return View(alternativa);
-        }
+            var alternativa = await _dbConfig.Alternativa.FindAsync(id);
+            if (alternativa != null)
+            {
+                _dbConfig.Alternativa.Remove(alternativa);
+                await _dbConfig.SaveChangesAsync();
+            }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ComfirmarDeletar(int id)
-        {
-            var alternativa = await _db.Alternativa.FindAsync(id);
-            _db.Alternativa.Remove(alternativa);
-            await _db.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Dashboard");
         }
     }
 }
