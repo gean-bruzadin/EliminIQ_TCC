@@ -1,0 +1,45 @@
+﻿@model EliminIQ_TCC.Models.Privacidade
+@{
+    ViewData["Title"] = "Cadastro de Privacidade";
+}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EliminIQ</title>
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="" />
+</head>
+<body>
+    <div class="container">
+        <div class="image-side">
+            <img src="" alt="Imagem decorativa" />
+        </div>
+
+        <div class="form-side">
+            <h2>Cadastre-se</h2>
+            <form asp-action="CriarPrivacidade" method="post" id="formCadastro">
+                <!-- Campo oculto para o Id gerado pelo EF -->
+
+                <div class="input-field">
+                    <i class='bx bxs-user'></i>
+                    <input asp-for="Nome_Privacidade" placeholder="Nome" required />
+                    <span asp-validation-for="Nome_Privacidade" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn solid">Criar</button>
+            </form>
+            <p style="margin-top: 10px;">
+                Já tem Conta? <a asp-controller="Usuario" asp-action="Login">Faça o Login</a>
+            </p>
+        </div>
+    </div>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+</body>
+</html>

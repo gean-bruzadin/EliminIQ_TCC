@@ -14,7 +14,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "applicationUrl": "http://localhost:5122",
-      "launchUrl": "Auth/Login",
+      "launchUrl": "Privacidade/CriarPrivacidade",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -22,7 +22,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "Auth/Login",
+      "launchUrl": "Privacidade/CriarPrivacidade",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

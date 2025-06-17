@@ -18,14 +18,7 @@ namespace EliminIQ_TCC.Controllers
 
         // ------- DASHBOARD (permanece aqui) -------
 
-        public IActionResult Dashboard()
-        {
-            if (!UsuarioLogado())
-                return RedirecionarAoLogin();
-
-            ViewBag.Nome = HttpContext.Session.GetString("UsuarioNome");
-            return View();
-        }
+      
 
         // ------- CRUD de Usuario (vai sempre para Dashboard) -------
 
